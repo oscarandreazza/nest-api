@@ -14,8 +14,11 @@ import { TicketService } from './ticket.service';
 import { TicketDto } from './dtos/createTicket.dto';
 import { TicketEntity } from './interfaces/ticket.entity';
 import { ReturnTicketDto } from './dtos/returnTicket.dto';
+import { Roles } from 'src/decorators/roles.decorator';
+import { UserType } from 'src/user/enum/user-type.enum';
 
 @Controller('ticket')
+@Roles(UserType.User)
 export class TicketController {
   constructor(private readonly ticketService: TicketService) {}
 

@@ -5,6 +5,9 @@ import { TicketModule } from './ticket/ticket.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './guards/roles.guards';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -28,8 +31,14 @@ import { AuthModule } from './auth/auth.module';
     CustomerModule,
     TicketModule,
     AuthModule,
+    JwtModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}
