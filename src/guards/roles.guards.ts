@@ -31,23 +31,21 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    const loginPayload: LoginPayload | null = await this.verificarToken(authorizationHeader);
+    const loginPayload: LoginPayload | null = await this.verifyToken(authorizationHeader);
 
     if (!loginPayload) {
-      // Falha na verificação do token, acesso negado
       return false;
     }
 
     return requiredRoles.includes(loginPayload.type_user);
   }
 
-  private async verificarToken(authorizationHeader: string): Promise<LoginPayload | null> {
+  private async verifyToken(authorizationHeader: string): Promise<LoginPayload | null> {
     try {
       return await this.jwtService.verifyAsync(authorizationHeader, {
         secret: process.env.JWT_SECRET,
       });
     } catch (error) {
-      // Falha na verificação do token
       return null;
     }
   }

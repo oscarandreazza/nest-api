@@ -1,10 +1,11 @@
-import { Body, Controller, Post, Get, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Post, Get, UsePipes, ValidationPipe, Req } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { CustomerDto } from './dtos/createCustomer.dto';
 import { CustomerEntity } from './interfaces/customer.entity';
 import { ReturnCustomerDto } from './dtos/returnCustomer.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { UserType } from 'src/user/enum/user-type.enum';
+import { UserId } from 'src/decorators/user-id.decorator';
 
 @Controller('customer')
 @Roles(UserType.User)
@@ -18,7 +19,8 @@ export class CustomerController {
   }
 
   @Get()
-  async getAllCustomer(): Promise<ReturnCustomerDto[]> {
+  async getAllCustomer(@UserId() userId: number): Promise<ReturnCustomerDto[]> {
+    console.log(userId);
     return (await this.customerService.getAllCustomer()).map((customerEntity) => {
       return new ReturnCustomerDto(customerEntity);
     });
