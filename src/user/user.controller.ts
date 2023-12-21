@@ -3,13 +3,11 @@ import { UserCreateDto } from './dtos/createUser.dto';
 import { UserService } from './user.service';
 import { UserEntity } from './interfaces/user.entity';
 import { ReturnUserDto } from './dtos/returnUser.dto';
-import { Public } from 'src/decorators/public.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Public()
   @UsePipes(ValidationPipe)
   @Post()
   async userCreate(@Body() userCreate: UserCreateDto): Promise<UserEntity> {

@@ -1,47 +1,54 @@
-// roles.guard.ts
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { LoginPayload } from 'src/auth/dtos/loginPayload.dts';
 import { ROLES_KEY } from 'src/decorators/roles.decorator';
 import { UserType } from 'src/user/enum/user-type.enum';
-import { IS_PUBLIC_KEY } from 'src/decorators/public.decorator'; // Importe o IS_PUBLIC_KEY
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
-    private reflector: Reflector,
+    private readonly reflector: Reflector,
     private readonly jwtService: JwtService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    if (isPublic) {
-      return true;
-    }
-
     const requiredRoles = this.reflector.getAllAndOverride<UserType[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
 
-    const { authorization } = context.switchToHttp().getRequest().headers;
+    if (!requiredRoles) {
+      // Nenhum papel especificado, acesso concedido
+      return true;
+    }
 
-    const loginPayload: LoginPayload | undefined = await this.jwtService
-      .verifyAsync(authorization, {
-        secret: process.env.JWT_SECRET,
-      })
-      .catch((error) => error);
+    const request = context.switchToHttp().getRequest();
+    const authorizationHeader = request.headers.authorization;
 
-    console.log(loginPayload);
-
-    if (!loginPayload) {
+    if (!authorizationHeader) {
+      // Cabeçalho de autorização não presente, acesso negado
       return false;
     }
 
-    return requiredRoles.some((role) => role === loginPayload.type_user);
+    const loginPayload: LoginPayload | null = await this.verificarToken(authorizationHeader);
+
+    if (!loginPayload) {
+      // Falha na verificação do token, acesso negado
+      return false;
+    }
+
+    return requiredRoles.includes(loginPayload.type_user);
+  }
+
+  private async verificarToken(authorizationHeader: string): Promise<LoginPayload | null> {
+    try {
+      return await this.jwtService.verifyAsync(authorizationHeader, {
+        secret: process.env.JWT_SECRET,
+      });
+    } catch (error) {
+      // Falha na verificação do token
+      return null;
+    }
   }
 }
