@@ -19,7 +19,6 @@ export class RolesGuard implements CanActivate {
     ]);
 
     if (!requiredRoles) {
-      // Nenhum papel especificado, acesso concedido
       return true;
     }
 
@@ -27,7 +26,6 @@ export class RolesGuard implements CanActivate {
     const authorizationHeader = request.headers.authorization;
 
     if (!authorizationHeader) {
-      // Cabeçalho de autorização não presente, acesso negado
       return false;
     }
 

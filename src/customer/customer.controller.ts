@@ -19,8 +19,8 @@ export class CustomerController {
   }
 
   @Get()
-  async getAllCustomer(@UserId() userId: number): Promise<ReturnCustomerDto[]> {
-    console.log(userId);
+  async getAllCustomer(@Req() req): Promise<ReturnCustomerDto[]> {
+    console.log(req.id);
     return (await this.customerService.getAllCustomer()).map((customerEntity) => {
       return new ReturnCustomerDto(customerEntity);
     });

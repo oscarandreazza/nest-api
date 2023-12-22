@@ -8,15 +8,16 @@ export const UserId = createParamDecorator(async (data: unknown, ctx: ExecutionC
   if (request) {
     const authorizationHeader = request.headers.authorization;
     if (!authorizationHeader) {
-      // Cabeçalho de autorização não presente, retorne null ou algum valor padrão
       return null;
     }
 
     const jwtService = new JwtService();
+
     try {
       const loginPayload: LoginPayload = await jwtService.verifyAsync(authorizationHeader, {
         secret: process.env.JWT_SECRET,
       });
+
       return loginPayload.id;
     } catch (error) {
       console.error('Erro ao decodificar o token:', error.message);

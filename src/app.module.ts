@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { CustomerModule } from './customer/customer.module';
 import { TicketModule } from './ticket/ticket.module';
@@ -8,6 +8,9 @@ import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guards/roles.guards';
 import { JwtModule } from '@nestjs/jwt';
+import { AuthMiddleware } from './middleware/auth.middleware';
+import { JwtUtils } from './auth/utils/verifyJwt.util';
+import { HourMiddleware } from './middleware/hourAcess.middleware';
 
 @Module({
   imports: [
@@ -31,14 +34,22 @@ import { JwtModule } from '@nestjs/jwt';
     CustomerModule,
     TicketModule,
     AuthModule,
-    JwtModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1d' },
+    }),
   ],
   controllers: [],
   providers: [
+    JwtUtils,
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes('*');
+  }
+}
