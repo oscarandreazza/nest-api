@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Req,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -24,13 +25,13 @@ export class TicketController {
 
   @UsePipes(ValidationPipe)
   @Post()
-  async ticketCreate(@Body() ticketDto: TicketDto): Promise<TicketEntity> {
-    return this.ticketService.ticketCreate(ticketDto);
+  async ticketCreate(@Req() req, @Body() ticketDto: TicketDto): Promise<TicketEntity> {
+    return this.ticketService.ticketCreate(ticketDto, req.id);
   }
 
   @Get()
-  async getAllTickets(): Promise<ReturnTicketDto[]> {
-    return (await this.ticketService.getAllTickets()).map((ticketEntity) => {
+  async getAllTickets(@Req() Req): Promise<ReturnTicketDto[]> {
+    return (await this.ticketService.getAllTickets(Req.id)).map((ticketEntity) => {
       return new ReturnTicketDto(ticketEntity);
     });
   }

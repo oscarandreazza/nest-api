@@ -5,7 +5,6 @@ import { CustomerEntity } from './interfaces/customer.entity';
 import { ReturnCustomerDto } from './dtos/returnCustomer.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { UserType } from 'src/user/enum/user-type.enum';
-import { UserId } from 'src/decorators/user-id.decorator';
 
 @Controller('customer')
 @Roles(UserType.User)

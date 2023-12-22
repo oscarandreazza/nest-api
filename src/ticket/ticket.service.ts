@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TicketEntity } from './interfaces/ticket.entity';
 import { Repository } from 'typeorm';
@@ -16,12 +11,14 @@ export class TicketService {
     private readonly ticketRepository: Repository<TicketEntity>,
   ) {}
 
-  async ticketCreate(ticketCreate: TicketDto): Promise<TicketEntity> {
-    return this.ticketRepository.save(ticketCreate);
+  async ticketCreate(ticketCreate: TicketDto, id: number): Promise<TicketEntity> {
+    console.log({ ...ticketCreate, user_id: id });
+    return this.ticketRepository.save({ ...ticketCreate, user_id: id });
   }
 
-  async getAllTickets(): Promise<TicketEntity[]> {
+  async getAllTickets(id: number): Promise<TicketEntity[]> {
     return await this.ticketRepository.find({
+      where: { user_id: id },
       relations: ['user', 'customer'],
     });
   }

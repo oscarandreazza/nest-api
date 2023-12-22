@@ -24,6 +24,9 @@ export class TicketEntity {
   @Column({ name: 'status', nullable: false })
   status: number;
 
+  @Column({ name: 'user_id', nullable: false })
+  user_id: number;
+
   @ManyToOne(() => UserEntity, (user) => user.id, {
     onDelete: 'CASCADE',
     nullable: false,

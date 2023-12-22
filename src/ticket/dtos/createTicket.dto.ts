@@ -13,8 +13,5 @@ export class TicketDto {
   status: number;
 
   @IsObject()
-  user: UserEntity;
-
-  @IsObject()
   customer: CustomerEntity;
 }

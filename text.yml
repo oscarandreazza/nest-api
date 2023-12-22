@@ -1,0 +1,105 @@
+version: '3.3'
+services:
+  caddy-gen:
+    image: 'wemakeservices/caddy-gen:latest'
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - caddy-certificates:/data/caddy
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - typebot-builder
+      - typebot-viewer
+  typebot-db:
+    image: postgres:13
+    restart: always
+    volumes:
+      - db_data:/var/lib/postsgresql/data
+    environment:
+      - POSTGRES_DB=typebot
+      - POSTGRES_PASSWORD=typebot
+  typebot-builder:
+    labels:
+      virtual.host: 'typebot.formacompleta.com.br' # change to your domain
+      virtual.port: '3000'
+      virtual.tls-email: 'admin@formacompleta.com.br' # change to your email
+    image: baptistearno/typebot-builder:2.18.4
+    restart: always
+    depends_on:
+      - typebot-db
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    # See https://docs.typebot.io/self-hosting/configuration for more configuration options
+    environment:
+      - DATABASE_URL=postgresql://postgres:typebot@typebot-db:5432/typebot
+      - NEXTAUTH_URL=https://typebot.formacompleta.com.br
+      - NEXT_PUBLIC_VIEWER_URL=https://formacompleta.com.br
+      - ENCRYPTION_SECRET=hsWTW04PIBIn3+Cef7D0c0FZML8M8Ig3
+      - ADMIN_EMAIL=acesso@formacompleta.com.br
+      - SMTP_HOST=smtp.hostinger.com
+      - SMTP_PORT=465
+      - SMTP_USERNAME=admin@formacompleta.com.br
+      - SMTP_PASSWORD=Pfeiff.s123
+      - SMTP_USE_TLS=true
+      - SMTP_FROM_ADDRESS=admin@formacompleta.com.br
+      - NEXT_PUBLIC_SMTP_FROM=admin@formacompleta.com.br
+      - S3_ACCESS_KEY=minio
+      - S3_SECRET_KEY=minio123
+      - S3_BUCKET=typebot
+      - S3_ENDPOINT=storage.formacompleta.com.br
+  typebot-viewer:
+    labels:
+      virtual.host: 'formacompleta.com.br' # change to your domain
+      virtual.port: '3000'
+      virtual.tls-email: 'admin@formacompleta.com.br' # change to your email
+    image: baptistearno/typebot-viewer:2.18.4
+    restart: always
+    # See https://docs.typebot.io/self-hosting/configuration for more configuration options
+    environment:
+      - DATABASE_URL=postgresql://postgres:typebot@typebot-db:5432/typebot
+      - NEXTAUTH_URL=https://typebot.formacompleta.com.br
+      - NEXT_PUBLIC_VIEWER_URL=https://formacompleta.com.br
+      - ENCRYPTION_SECRET=hsWTW04PIBIn3+Cef7D0c0FZML8M8Ig3
+      - SMTP_HOST=smtp.hostinger.com
+      - NEXT_PUBLIC_SMTP_FROM=admin@formacompleta.com.br
+      - S3_ACCESS_KEY=minio
+      - S3_SECRET_KEY=minio123
+      - S3_BUCKET=typebot
+      - S3_ENDPOINT=storage.formacompleta.com.br
+  mail:
+    image: bytemark/smtp
+    restart: always
+  minio:
+    labels:
+      virtual.host: 'storage.formacompleta.com.br' # change to your domain
+      virtual.port: '9000'
+      virtual.tls-email: 'admin@formacompleta.com.br' # change to your email
+    image: minio/minio
+    command: server /data
+    ports:
+      - '9000:9000'
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - s3_data:/data
+  # This service just make sure a bucket with the right policies is created
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10;
+      /usr/bin/mc config host add minio http://minio:9000 minio minio123;
+      /usr/bin/mc mb minio/typebot;
+      /usr/bin/mc anonymous set public minio/typebot/public;
+      exit 0;
+      "
+volumes:
+  db_data:
+  s3_data:
+  caddy-certificates:
+    driver: local
