@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity({ name: 'customer' })
@@ -22,7 +23,11 @@ export class CustomerEntity {
   @Column({ name: 'address', nullable: false })
   address: string;
 
+  @Column({ name: 'user_id', nullable: false })
+  user_id: number;
+
   @ManyToOne(() => UserEntity, (user) => user.id, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 
   @CreateDateColumn({ name: 'created_at' })

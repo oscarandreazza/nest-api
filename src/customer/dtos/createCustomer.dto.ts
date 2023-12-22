@@ -10,7 +10,4 @@ export class CustomerDto {
 
   @IsString()
   address: string;
-
-  @IsObject()
-  user: UserEntity;
 }

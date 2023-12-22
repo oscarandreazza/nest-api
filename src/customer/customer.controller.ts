@@ -14,14 +14,13 @@ export class CustomerController {
 
   @UsePipes(ValidationPipe)
   @Post()
-  async customerCreate(@Body() customerCreate: CustomerDto): Promise<CustomerEntity> {
-    return this.customerService.customerCreate(customerCreate);
+  async customerCreate(@Req() req, @Body() customerCreate: CustomerDto) {
+    return this.customerService.customerCreate(customerCreate, req.id);
   }
 
   @Get()
   async getAllCustomer(@Req() req): Promise<ReturnCustomerDto[]> {
-    console.log(req.id);
-    return (await this.customerService.getAllCustomer()).map((customerEntity) => {
+    return (await this.customerService.getAllCustomer(req.id)).map((customerEntity) => {
       return new ReturnCustomerDto(customerEntity);
     });
   }

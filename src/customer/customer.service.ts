@@ -11,12 +11,13 @@ export class CustomerService {
     private readonly customerRepository: Repository<CustomerEntity>,
   ) {}
 
-  async customerCreate(customerCreate: CustomerDto): Promise<CustomerEntity> {
-    return this.customerRepository.save(customerCreate);
+  async customerCreate(customerCreate: CustomerDto, id: number): Promise<CustomerEntity> {
+    return this.customerRepository.save({ ...customerCreate, user_id: id });
   }
 
-  async getAllCustomer(): Promise<CustomerEntity[]> {
+  async getAllCustomer(id: number): Promise<CustomerEntity[]> {
     return this.customerRepository.find({
+      where: { user_id: id },
       relations: ['user'],
     });
   }

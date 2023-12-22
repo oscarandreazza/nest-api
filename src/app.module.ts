@@ -10,7 +10,7 @@ import { RolesGuard } from './guards/roles.guards';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { JwtUtils } from './auth/utils/verifyJwt.util';
-import { HourMiddleware } from './middleware/hourAcess.middleware';
+import { HourMiddleware } from './middleware/hourAccess.middleware';
 
 @Module({
   imports: [
