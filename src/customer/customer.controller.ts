@@ -14,7 +14,7 @@ export class CustomerController {
 
   @UsePipes(ValidationPipe)
   @Post()
-  async customerCreate(@Req() req, @Body() customerCreate: CustomerDto) {
+  async customerCreate(@Req() req, @Body() customerCreate: CustomerDto): Promise<CustomerEntity> {
     return this.customerService.customerCreate(customerCreate, req.id);
   }
 
