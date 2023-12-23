@@ -18,7 +18,7 @@ export class UserEntity {
   @Column({ name: 'password', nullable: false })
   password: string;
 
-  @Column({ name: 'image_url' })
+  @Column({ name: 'image_url', nullable: true })
   image_url: string;
 
   @CreateDateColumn({ name: 'created_at' })
